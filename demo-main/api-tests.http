@@ -1,0 +1,101 @@
+### =========================================================================
+### PRODUCTOS
+### =========================================================================
+
+### 1. [ÉXITO] Listar productos (con paginación)
+GET http://localhost:8080/api/productos?pagina=0&tamanio=5
+Accept: application/json
+
+###
+
+### 2. [ÉXITO] Obtener un producto existente por ID
+GET http://localhost:8080/api/productos/1
+Accept: application/json
+
+###
+
+### 3. [ERROR] Obtener un producto inexistente (ID muy grande) - DummyJSON devuelve 404 y se maneja en el ExceptionHandler
+GET http://localhost:8080/api/productos/999999
+Accept: application/json
+
+###
+
+### =========================================================================
+### FAVORITOS
+### =========================================================================
+
+### 4. [ÉXITO] Crear un favorito nuevo
+POST http://localhost:8080/api/favoritos
+Content-Type: application/json
+Accept: application/json
+
+{
+  "productoId": 1,
+  "tituloPersonalizado": "Mi cel favorito"
+}
+
+###
+
+### 5. [ERROR] Crear un favorito con datos inválidos (productoId = null) - Falla la validación (@Valid)
+POST http://localhost:8080/api/favoritos
+Content-Type: application/json
+Accept: application/json
+
+{
+  "tituloPersonalizado": "Falta el ID del producto"
+}
+
+###
+
+### 6. [ÉXITO] Listar todos los favoritos
+GET http://localhost:8080/api/favoritos
+Accept: application/json
+
+###
+
+### 7. [ÉXITO] Obtener un favorito existente por ID interno
+# Nota: Ajustar el ID '1' si el favorito creado anteriormente obtuvo un ID distinto.
+GET http://localhost:8080/api/favoritos/1
+Accept: application/json
+
+###
+
+### 8. [ERROR] Obtener un favorito inexistente por ID
+GET http://localhost:8080/api/favoritos/9999
+Accept: application/json
+
+###
+
+### 9. [ÉXITO] Actualizar un favorito existente
+# Nota: Ajustar el ID '1' si corresponde.
+PUT http://localhost:8080/api/favoritos/1
+Content-Type: application/json
+Accept: application/json
+
+{
+  "productoId": 1,
+  "tituloPersonalizado": "Mi cel favorito (actualizado)"
+}
+
+###
+
+### 10. [ERROR] Actualizar un favorito inexistente
+PUT http://localhost:8080/api/favoritos/9999
+Content-Type: application/json
+Accept: application/json
+
+{
+  "productoId": 1,
+  "tituloPersonalizado": "No existe"
+}
+
+###
+
+### 11. [ÉXITO] Eliminar un favorito existente
+# Nota: Ajustar el ID '1' si corresponde.
+DELETE http://localhost:8080/api/favoritos/1
+
+###
+
+### 12. [ERROR] Eliminar un favorito inexistente
+DELETE http://localhost:8080/api/favoritos/9999

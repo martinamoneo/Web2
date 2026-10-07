@@ -1,3 +1,4 @@
+// cliente que consume la api (servicio)
 package com.example.demo.client.dummyjson;
 
 import com.example.demo.exception.ServicioExternoException;
@@ -5,11 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
-/**
- * Cliente HTTP que encapsula todas las llamadas a la API de DummyJSON.
- * Es la única clase de la aplicación que conoce las rutas y la forma
- * del JSON externo. El resto del sistema trabaja con DTOs propios.
- */
+//Única clase que conoce las rutas y la forma del JSON externo. El resto del sistema trabaja con DTOs propios
 @Component
 public class DummyJsonClient {
 

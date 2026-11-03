@@ -1,6 +1,5 @@
 package com.example.demo.service;
 
-import com.example.demo.domain.Favorito;
 import com.example.demo.domain.Lista;
 import com.example.demo.dto.lista.ListaRequest;
 import com.example.demo.dto.lista.ListaResponse;

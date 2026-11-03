@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 public class FavoritoRepositoryAdapter implements FavoritoRepository {
@@ -25,7 +24,7 @@ public class FavoritoRepositoryAdapter implements FavoritoRepository {
     public List<Favorito> findAll() {
         return jpaRepository.findAll().stream()
                 .map(this::toDomain)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -47,7 +46,7 @@ public class FavoritoRepositoryAdapter implements FavoritoRepository {
 
     @Override
     public List<Favorito> findByListaId(Long listaId) {
-        return jpaRepository.findByListaId(listaId).stream().map(this::toDomain).collect(Collectors.toList());
+        return jpaRepository.findByListaId(listaId).stream().map(this::toDomain).toList();
     }
 
     @Override

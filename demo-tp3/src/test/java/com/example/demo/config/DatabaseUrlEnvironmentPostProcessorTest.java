@@ -58,3 +58,4 @@ class DatabaseUrlEnvironmentPostProcessorTest {
                 environment.getProperty("spring.datasource.url"));
     }
 }
+

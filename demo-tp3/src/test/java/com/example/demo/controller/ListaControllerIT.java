@@ -3,7 +3,6 @@ package com.example.demo.controller;
 import com.example.demo.domain.Lista;
 import com.example.demo.domain.Usuario;
 import com.example.demo.dto.auth.LoginRequest;
-import com.example.demo.dto.lista.ListaRequest;
 import com.example.demo.repository.ListaRepository;
 import com.example.demo.repository.UsuarioRepository;
 import com.example.demo.security.JwtService;
@@ -22,6 +21,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -35,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ListaControllerIT {
 
     @Container
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:17");
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(DockerImageName.parse("postgres:17"));
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {

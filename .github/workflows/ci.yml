@@ -36,5 +36,13 @@ jobs:
           if [ -d "demo-tp3" ]; then
             cd demo-tp3
           fi
-          ./mvnw verify
+          ./mvnw verify -B
+
+      - name: Print test reports on failure
+        if: failure()
+        run: |
+          for f in $(find . -path "*/target/*-reports/*.txt"); do
+            echo "==== $f ===="
+            cat "$f"
+          done
 

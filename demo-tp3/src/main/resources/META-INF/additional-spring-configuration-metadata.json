@@ -1,0 +1,22 @@
+{
+  "properties": [
+    {
+      "name": "app.dummyjson.base-url",
+      "type": "java.lang.String",
+      "description": "URL base de la API externa de DummyJSON para el catálogo de productos.",
+      "defaultValue": "https://dummyjson.com"
+    },
+    {
+      "name": "jwt.secret",
+      "type": "java.lang.String",
+      "description": "Clave secreta utilizada para firmar y verificar tokens JWT.",
+      "defaultValue": "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970"
+    },
+    {
+      "name": "jwt.expiration",
+      "type": "java.lang.Long",
+      "description": "Tiempo de expiración de los tokens JWT en milisegundos.",
+      "defaultValue": 86400000
+    }
+  ]
+}

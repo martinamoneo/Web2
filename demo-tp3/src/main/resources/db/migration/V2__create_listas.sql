@@ -1,0 +1,5 @@
+CREATE TABLE listas (
+    id BIGSERIAL PRIMARY KEY,
+    nombre VARCHAR(255) NOT NULL,
+    descripcion TEXT
+);

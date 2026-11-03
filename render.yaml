@@ -1,0 +1,33 @@
+databases:
+  - name: tp3-postgres
+    plan: free
+    databaseName: webii_tp3
+    user: webii_tp3
+
+services:
+  - type: web
+    name: demo-tp3
+    runtime: docker
+    dockerfilePath: demo-tp3/Dockerfile
+    dockerContext: demo-tp3
+    plan: free
+    envVars:
+      - key: SPRING_DATASOURCE_URL
+        fromDatabase:
+          name: tp3-postgres
+          property: connectionString
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: tp3-postgres
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: tp3-postgres
+          property: password
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRATION
+        value: "86400000"
+      - key: PORT
+        value: "8080"
+

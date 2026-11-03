@@ -78,6 +78,5 @@ public class FavoritoEntity {
 
     public void setFechaAgregado(LocalDateTime fechaAgregado) {
         this.fechaAgregado = fechaAgregado;
-        this.lista = lista;
     }
 }

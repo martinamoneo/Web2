@@ -16,32 +16,53 @@ public class DatabaseUrlEnvironmentPostProcessor implements EnvironmentPostProce
 
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
-        String url = environment.getProperty("spring.datasource.url");
-        if (url == null || url.isBlank()) {
-            url = environment.getProperty("DATABASE_URL");
+        String raw = environment.getProperty("spring.datasource.url");
+        if (raw == null || raw.isBlank()) {
+            raw = environment.getProperty("DATABASE_URL");
+        }
+        if (raw == null || raw.isBlank()) {
+            return;
         }
 
-        if (url != null && (url.startsWith("postgres://") || url.startsWith("postgresql://")) && !url.startsWith("jdbc:")) {
+        // Si la URL contiene credenciales incrustadas (@) o no empieza con "jdbc:"
+        if (raw.contains("@") || raw.startsWith("postgres://") || (raw.startsWith("postgresql://") && !raw.startsWith("jdbc:"))) {
             try {
-                URI uri = new URI(url);
+                String s = raw.trim();
+                if (s.startsWith("jdbc:")) {
+                    s = s.substring(5);
+                }
+                if (s.startsWith("postgres://")) {
+                    s = "postgresql://" + s.substring("postgres://".length());
+                }
+
+                URI uri = new URI(s);
                 String host = uri.getHost();
                 int port = uri.getPort() == -1 ? 5432 : uri.getPort();
-                String path = uri.getPath();
+                String path = uri.getPath() != null ? uri.getPath() : "";
+
+                String jdbcUrl = "jdbc:postgresql://" + host + ":" + port + path;
+                String query = uri.getQuery();
+                if (query != null && !query.isBlank()) {
+                    jdbcUrl += "?" + query;
+                }
 
                 Map<String, Object> overrides = new HashMap<>();
-                overrides.put("spring.datasource.url", "jdbc:postgresql://" + host + ":" + port + path);
+                overrides.put("spring.datasource.url", jdbcUrl);
+                overrides.put("SPRING_DATASOURCE_URL", jdbcUrl);
 
                 String userInfo = uri.getUserInfo();
-                if (userInfo != null) {
+                if (userInfo != null && userInfo.contains(":")) {
                     String[] parts = userInfo.split(":", 2);
                     overrides.put("spring.datasource.username", parts[0]);
-                    if (parts.length > 1) {
-                        overrides.put("spring.datasource.password", parts[1]);
-                    }
+                    overrides.put("SPRING_DATASOURCE_USERNAME", parts[0]);
+                    overrides.put("spring.datasource.password", parts[1]);
+                    overrides.put("SPRING_DATASOURCE_PASSWORD", parts[1]);
                 }
 
                 environment.getPropertySources().addFirst(new MapPropertySource("renderDatabaseOverride", overrides));
-            } catch (Exception ignored) {
+                System.out.println("[DatabaseUrlEnvironmentPostProcessor] Successfully configured JDBC URL: " + jdbcUrl);
+            } catch (Exception e) {
+                System.err.println("[DatabaseUrlEnvironmentPostProcessor] Warning: failed to parse database URL: " + e.getMessage());
             }
         }
     }

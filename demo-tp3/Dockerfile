@@ -14,10 +14,8 @@ FROM eclipse-temurin:25-jre
 WORKDIR /app
 
 COPY --from=builder /app/target/*.jar app.jar
-COPY entrypoint.sh ./
-RUN chmod +x entrypoint.sh
 
 ENV PORT=8080
 EXPOSE 8080
 
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["java", "-jar", "app.jar"]

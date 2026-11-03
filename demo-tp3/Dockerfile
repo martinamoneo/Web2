@@ -4,10 +4,10 @@ WORKDIR /app
 
 COPY .mvn/ .mvn/
 COPY mvnw pom.xml ./
-RUN chmod +x mvnw && ./mvnw dependency:go-offline -B || true
+RUN chmod +x mvnw
 
 COPY src/ ./src/
-RUN ./mvnw clean package -DskipTests
+RUN ./mvnw clean package -Dmaven.test.skip=true
 
 # Runtime stage
 FROM eclipse-temurin:25-jre
@@ -19,4 +19,3 @@ ENV PORT=8080
 EXPOSE 8080
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
-

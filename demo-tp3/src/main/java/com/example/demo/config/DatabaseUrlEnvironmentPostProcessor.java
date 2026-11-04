@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
-@SuppressWarnings("deprecation")
+@SuppressWarnings("removal")
 public class DatabaseUrlEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
     @Override

@@ -2,7 +2,15 @@
 
 Este proyecto amplía el TP2 incorporando autenticación stateless mediante JWT, autorización por rol y propiedad de recursos, pruebas unitarias y de integración con Testcontainers, y configuración externalizada mediante variables de entorno.
 
-## Cómo levantar el proyecto
+## Despliegue en Vivo (Render)
+
+- **URL Base:** [https://demo-tp3.onrender.com](https://demo-tp3.onrender.com)
+- **Endpoint de Salud (GET /health):** [https://demo-tp3.onrender.com/health](https://demo-tp3.onrender.com/health)
+- **Documentación Interactiva (Swagger UI):** [https://demo-tp3.onrender.com/swagger-ui/index.html](https://demo-tp3.onrender.com/swagger-ui/index.html)
+
+---
+
+## Cómo levantar el proyecto localmente
 
 **Requisitos:** Java 25 y Docker (recomendado).
 
@@ -25,6 +33,8 @@ Levanta PostgreSQL en el puerto `5432` (base `webii_tp2`, usuario `webii_tp2`).
 ./mvnw spring-boot:run
 ```
 La aplicación estará disponible en `http://localhost:8080`.
+
+---
 
 ## Cómo correr los tests
 
@@ -85,93 +95,86 @@ El proyecto cuenta con un workflow de CI configurado en `.github/workflows/ci.ym
 
 ---
 
-## Despliegue en la Nube (Render)
+## Consigna 7 · Despliegue en la Nube (Render)
 
-El proyecto está preparado para desplegarse fácilmente en proveedores cloud con PostgreSQL (como [Render](https://render.com/)).
+El proyecto se encuentra desplegado y funcionando en [Render](https://render.com/) junto a una base de datos PostgreSQL remota.
 
-### Opción A: Despliegue Automático mediante Blueprint (`render.yaml`)
+- **Servicio Web:** `demo-tp3` (Plan Free, Runtime Docker)
+- **Base de Datos:** `tp3-postgres` (PostgreSQL 16 en Render)
+- **URL Pública:** `https://demo-tp3.onrender.com`
 
-El repositorio incluye un archivo [`render.yaml`](file:///C:/Users/martinamoneo2/Documents/GitHub/Web2/demo-tp3/render.yaml) (Infrastructure as Code) que provisiona la base de datos PostgreSQL y el servicio web en conjunto:
+### Variables de Entorno Configuradas
 
-1. Ingresá a [dashboard.render.com](https://dashboard.render.com/).
-2. Seleccioná **New +** > **Blueprint**.
-3. Conectá el repositorio de GitHub.
-4. Render creará automáticamente la base PostgreSQL (`tp3-postgres`) y el servicio web (`demo-tp3`) inyectando las variables de entorno correspondientes.
+| Variable de Entorno | Origen / Configuración en Render | Descripción |
+|---|---|---|
+| `SPRING_DATASOURCE_URL` | `fromDatabase: tp3-postgres (property: connectionString)` | URL de conexión al PostgreSQL remoto (procesada por `DatabaseUrlEnvironmentPostProcessor`) |
+| `SPRING_DATASOURCE_USERNAME` | `fromDatabase: tp3-postgres (property: user)` | Usuario de la base de datos PostgreSQL |
+| `SPRING_DATASOURCE_PASSWORD` | `fromDatabase: tp3-postgres (property: password)` | Contraseña del usuario de la base de datos |
+| `JWT_SECRET` | `generateValue: true` | Clave secreta segura de 256 bits para firma HS256 |
+| `JWT_EXPIRATION` | `86400000` | Expiración del token JWT (24 horas en milisegundos) |
+| `PORT` | `8080` | Puerto HTTP expuesto por la aplicación |
 
-### Opción B: Despliegue Manual (Paso a Paso)
+### Verificación y Evidencias de Funcionamiento
 
-#### 1. Crear la Base de Datos PostgreSQL
-1. En Render, seleccioná **New +** > **PostgreSQL**.
-2. Nombre: `webii-tp3-db`, Database: `webii_tp3`, User: `webii_tp3`.
-3. Seleccioná el plan **Free** y hacé clic en **Create Database**.
-4. Una vez creada, copiá el **Internal Database URL** (o los campos individuales: host, user, password, database).
+#### 1. Verificación del Endpoint de Salud (`GET /health`)
+Petición HTTP pública directa al endpoint de salud:
+```bash
+curl -i https://demo-tp3.onrender.com/health
+```
+**Respuesta obtenida (HTTP 200 OK):**
+```json
+{
+  "status": "ok",
+  "service": "demo"
+}
+```
 
-#### 2. Crear el Web Service
-1. En Render, seleccioná **New +** > **Web Service**.
-2. Conectá el repositorio de GitHub.
-3. Configurá:
-   - **Language / Runtime:** `Docker` (utiliza el [`Dockerfile`](file:///C:/Users/martinamoneo2/Documents/GitHub/Web2/demo-tp3/Dockerfile) multi-stage con Java 25).
-   - **Plan:** `Free`.
-4. En **Environment Variables**, configurá:
-   - `SPRING_DATASOURCE_URL`: El connection string de PostgreSQL (la aplicación soporta tanto el formato `postgres://...` como `jdbc:postgresql://...` gracias a `DataSourceConfig`).
-   - `SPRING_DATASOURCE_USERNAME`: El usuario de la base.
-   - `SPRING_DATASOURCE_PASSWORD`: La contraseña de la base.
-   - `JWT_SECRET`: Una clave segura de al menos 256 bits (ej. generada aleatoriamente).
-   - `JWT_EXPIRATION`: `86400000` (24 horas).
-   - `PORT`: `8080`.
+#### 2. Confirmación de Migraciones de Flyway en la Base Remota
+En los logs de inicio del servicio en Render se confirma la aplicación secuencial de todas las versiones de migración sobre el esquema `public`:
+```text
+o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "1 - create favoritos"
+o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "2 - create listas"
+o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "3 - add lista id to favoritos"
+o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "4 - backfill lista defecto"
+o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "5 - create usuarios"
+o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "6 - add usuario id a listas"
+o.f.core.internal.command.DbMigrate      : Successfully applied 6 migrations to schema "public"
+```
 
-### Verificación del Despliegue
+#### 3. Confirmación de Arranque sin Errores
+Los logs del contenedor en Render demuestran el arranque limpio de Spring Boot:
+```text
+[DatabaseUrlEnvironmentPostProcessor] Successfully configured JDBC URL: jdbc:postgresql://dpg-...-a.oregon-postgres.render.com:5432/webii_tp3
+...
+Tomcat started on port 8080 (http) with context path '/'
+Started DemoApplication in 5.341 seconds (process running for 6.12)
+```
 
-1. **Revisión de Logs:**
-   En la pestaña **Logs** del servicio en Render, verificá que:
-   - Flyway ejecute exitosamente las migraciones:
-     ```text
-     Migrating schema "public" to version "1 - create favoritos"
-     ...
-     Migrating schema "public" to version "6 - add usuario id a listas"
-     Successfully applied 6 migrations to schema "public"
-     ```
-   - Spring Boot inicie correctamente:
-     ```text
-     Started DemoApplication in X.XXX seconds
-     ```
-2. **Prueba del Endpoint de Salud:**
-   Realizá una petición `GET` pública al endpoint de salud:
-   ```bash
-   curl -i https://<tu-servicio>.onrender.com/health
-   ```
-   Respuesta esperada (HTTP 200 OK):
-   ```json
-   {
-     "status": "ok",
-     "service": "demo"
-   }
-   ```
-3. **Prueba de Flujo Completo (Registro y Login):**
-   ```bash
-   # Registro
-   curl -X POST https://<tu-servicio>.onrender.com/api/auth/registro \
-     -H "Content-Type: application/json" \
-     -d '{"email":"admin@example.com","password":"PasswordSeguro123"}'
+#### 4. Verificación de Autenticación y Base de Datos en Vivo
+```bash
+# 1. Registro de nuevo usuario (201 Created)
+curl -X POST https://demo-tp3.onrender.com/api/auth/registro \
+  -H "Content-Type: application/json" \
+  -d '{"email":"alumno@example.com","password":"PasswordSeguro123"}'
 
-   # Login y obtención de JWT
-   curl -X POST https://<tu-servicio>.onrender.com/api/auth/login \
-     -H "Content-Type: application/json" \
-     -d '{"email":"admin@example.com","password":"PasswordSeguro123"}'
-   ```
+# 2. Login y obtención de token JWT (200 OK con token)
+curl -X POST https://demo-tp3.onrender.com/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"alumno@example.com","password":"PasswordSeguro123"}'
+```
 
 ---
 
-## Endpoints
+## Endpoints de la API
 
 | Método | Path | Auth requerida | Descripción |
 |---|---|---|---|
 | POST | `/api/auth/registro` | Pública | Registro de nuevos usuarios (rol `USER` por defecto) |
 | POST | `/api/auth/login` | Pública | Autenticación y obtención de token JWT |
-| GET | `/health` | Pública | Chequeo de salud básico |
-| GET | `/ping` | Pública | Devuelve `pong` (sin JSON) |
+| GET | `/health` | Pública | Chequeo de salud básico (`{"status":"ok","service":"demo"}`) |
+| GET | `/ping` | Pública | Devuelve `pong` (sin formato JSON) |
 | GET | `/api/productos` | Pública | Catálogo de productos (consumido de DummyJSON) |
-| GET | `/api/productos/{id}` | Pública | Un producto puntual |
+| GET | `/api/productos/{id}` | Pública | Detalle de un producto puntual |
 | GET / POST | `/api/favoritos` | Bearer Token | Listar / crear favoritos |
 | GET / PUT / DELETE | `/api/favoritos/{id}` | Bearer Token | Obtener, actualizar o eliminar un favorito |
 | GET / POST | `/api/listas` | Bearer Token | Listar (solo propias o todas si ADMIN) / crear lista (asociada al usuario autenticado) |
@@ -179,7 +182,8 @@ El repositorio incluye un archivo [`render.yaml`](file:///C:/Users/martinamoneo2
 | POST | `/api/listas/{origenId}/mover-favoritos` | Bearer Token | Mover favoritos entre listas propias |
 | GET | `/api/listas/{id}/favoritos` | Bearer Token | Favoritos de una lista propia (o cualquiera si ADMIN) |
 
-> **Documentación interactiva (Swagger UI):** http://localhost:8080/swagger-ui/index.html
+> **Documentación interactiva (Swagger UI en Render):** https://demo-tp3.onrender.com/swagger-ui/index.html  
+> **Documentación interactiva (Swagger UI Local):** http://localhost:8080/swagger-ui/index.html
 
 ---
 

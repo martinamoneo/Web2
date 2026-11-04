@@ -116,12 +116,14 @@ El proyecto se encuentra desplegado y funcionando en [Render](https://render.com
 
 ### Verificación y Evidencias de Funcionamiento
 
-#### 1. Verificación del Endpoint de Salud (`GET /health`)
-Petición HTTP pública directa al endpoint de salud:
-```bash
-curl -i https://demo-tp3.onrender.com/health
-```
-**Respuesta obtenida (HTTP 200 OK):**
+#### 1. Panel de Render (Servicio en estado Live)
+![Servicio demo-tp3 en estado Live en Render](docs-utils/img/render-live.png)
+
+#### 2. Verificación del Endpoint de Salud (`GET /health`)
+Petición HTTP pública directa al endpoint de salud desde el navegador:
+
+![Respuesta pública de GET /health](docs-utils/img/render-health.png)
+
 ```json
 {
   "status": "ok",
@@ -129,7 +131,7 @@ curl -i https://demo-tp3.onrender.com/health
 }
 ```
 
-#### 2. Confirmación de Migraciones de Flyway en la Base Remota
+#### 3. Confirmación de Migraciones de Flyway en la Base Remota
 En los logs de inicio del servicio en Render se confirma la aplicación secuencial de todas las versiones de migración sobre el esquema `public`:
 ```text
 o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "1 - create favoritos"

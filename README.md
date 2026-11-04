@@ -116,12 +116,14 @@ El proyecto se encuentra desplegado y funcionando en [Render](https://render.com
 
 ### Verificación y Evidencias de Funcionamiento
 
-#### 1. Verificación del Endpoint de Salud (`GET /health`)
-Petición HTTP pública directa al endpoint de salud:
-```bash
-curl -i https://demo-tp3.onrender.com/health
-```
-**Respuesta obtenida (HTTP 200 OK):**
+#### 1. Panel de Render (Servicio en estado Live)
+![Servicio demo-tp3 en estado Live en Render](docs-utils/img/render-live.png)
+
+#### 2. Verificación del Endpoint de Salud (`GET /health`)
+Petición HTTP pública directa al endpoint de salud desde el navegador:
+
+![Respuesta pública de GET /health](docs-utils/img/render-health.png)
+
 ```json
 {
   "status": "ok",
@@ -129,7 +131,7 @@ curl -i https://demo-tp3.onrender.com/health
 }
 ```
 
-#### 2. Confirmación de Migraciones de Flyway en la Base Remota
+#### 3. Confirmación de Migraciones de Flyway en la Base Remota
 En los logs de inicio del servicio en Render se confirma la aplicación secuencial de todas las versiones de migración sobre el esquema `public`:
 ```text
 o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "1 - create favoritos"
@@ -141,7 +143,7 @@ o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version 
 o.f.core.internal.command.DbMigrate      : Successfully applied 6 migrations to schema "public"
 ```
 
-#### 3. Confirmación de Arranque sin Errores
+#### 4. Confirmación de Arranque sin Errores
 Los logs del contenedor en Render demuestran el arranque limpio de Spring Boot:
 ```text
 [DatabaseUrlEnvironmentPostProcessor] Successfully configured JDBC URL: jdbc:postgresql://dpg-...-a.oregon-postgres.render.com:5432/webii_tp3
@@ -150,7 +152,7 @@ Tomcat started on port 8080 (http) with context path '/'
 Started DemoApplication in 5.341 seconds (process running for 6.12)
 ```
 
-#### 4. Verificación de Autenticación y Base de Datos en Vivo
+#### 5. Verificación de Autenticación y Base de Datos en Vivo
 ```bash
 # 1. Registro de nuevo usuario (201 Created)
 curl -X POST https://demo-tp3.onrender.com/api/auth/registro \
